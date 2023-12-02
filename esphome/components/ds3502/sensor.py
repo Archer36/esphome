@@ -7,6 +7,8 @@ from esphome.const import (
     STATE_CLASS_MEASUREMENT,
 )
 
+CONF_WIPER_VALUE = "wiper_value"
+
 CODEOWNERS = ["@Archer36"]
 DEPENDENCIES = ["i2c"]
 
