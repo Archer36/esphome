@@ -19,7 +19,7 @@ CONFIG_SCHEMA = (
     cv.Schema(
         {
             cv.GenerateID(): cv.declare_id(DS3502Component),
-            cv.Optional(CONF_INITIAL_VALUE, default=1): cv.int(
+            cv.Optional(CONF_INITIAL_VALUE, default=1): cv.int_range(
                 min=1, max=126
             ),
             cv.Optional(CONF_WIPER_VALUE): sensor.sensor_schema(
