@@ -39,9 +39,7 @@ async def to_code(config):
     await cg.register_component(var, config)
     await i2c.register_i2c_device(var, config)
 
-    if CONF_INITIAL_VALUE in config:
-        sens = await sensor.new_sensor(config[CONF_INITIAL_VALUE])
-        cg.add(var.set_initial_value(sens))
+    cg.add(var.set_initial_value(config[CONF_INITIAL_VALUE]))
 
     if CONF_WIPER_VALUE in config:
         conf = config[CONF_WIPER_VALUE]
