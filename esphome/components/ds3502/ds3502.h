@@ -17,7 +17,7 @@ class DS3502Component : public PollingComponent, public i2c::I2CDevice {
   float get_setup_priority() const override { return setup_priority::DATA; }
   void update() override;
 
-  void set_initial_value(uint8_t initial_value) { this->initial_value_ = initial_value; }
+  void set_initial_value(uint8_t initial_value) { initial_value_ = initial_value; }
   void set_wiper_value(sensor::Sensor *wiper_value) { this->wiper_value_sensor_ = wiper_value; }
 
  protected:
