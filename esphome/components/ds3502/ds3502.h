@@ -21,6 +21,7 @@ class DS3502Component : public PollingComponent, public i2c::I2CDevice {
   void set_wiper_value_sensor(sensor::Sensor *wiper_value_sensor) { wiper_value_sensor_ = wiper_value_sensor; }
 
  protected:
+  uint8_t initial_value_;
   sensor::Sensor *wiper_value_sensor_{nullptr};
 };
 
