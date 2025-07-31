@@ -455,6 +455,7 @@ void WaveshareEPaperTypeA::init_display_() {
       this->data(0x01);  // x increase, y decrease : as in demo code
       break;
     case TTGO_EPAPER_2_13_IN_B74:
+    case ADAFRUIT_2_13_B74v2:
     case WAVESHARE_EPAPER_2_9_IN_V2:
       this->data(0x03);  // from top left to bottom right
       // RAM content option for Display Update
@@ -489,6 +490,9 @@ void WaveshareEPaperTypeA::dump_config() {
       break;
     case TTGO_EPAPER_2_13_IN_B74:
       ESP_LOGCONFIG(TAG, "  Model: 2.13in (TTGO B74)");
+      break;
+    case ADAFRUIT_2_13_B74v2:
+      ESP_LOGCONFIG(TAG, "  Model: 2.13in (Adafruit B74)");
       break;
     case TTGO_EPAPER_2_13_IN_B1:
       ESP_LOGCONFIG(TAG, "  Model: 2.13in (TTGO B1)");
@@ -533,6 +537,9 @@ void HOT WaveshareEPaperTypeA::display() {
         case TTGO_EPAPER_2_13_IN_B73:
           this->write_lut_(full_update ? FULL_UPDATE_LUT_TTGO_B73 : PARTIAL_UPDATE_LUT_TTGO_B73, LUT_SIZE_TTGO_B73);
           break;
+        case ADAFRUIT_2_13_B74v2:
+          this->write_lut_(full_update ? FULL_UPDATE_LUT_TTGO_B73 : PARTIAL_UPDATE_LUT_TTGO_B73, LUT_SIZE_TTGO_B73);
+          break;
         case TTGO_EPAPER_2_13_IN_B74:
           // there is no LUT
           break;
@@ -570,6 +577,10 @@ void HOT WaveshareEPaperTypeA::display() {
   // Border waveform
   switch (this->model_) {
     case TTGO_EPAPER_2_13_IN_B74:
+      this->command(0x3C);
+      this->data(full_update ? 0x05 : 0x80);
+      break;
+    case ADAFRUIT_2_13_B74v2:
       this->command(0x3C);
       this->data(full_update ? 0x05 : 0x80);
       break;
@@ -665,6 +676,9 @@ void HOT WaveshareEPaperTypeA::display() {
     case TTGO_EPAPER_2_13_IN_B74:
       this->data(full_update ? 0xF7 : 0xFF);
       break;
+    case ADAFRUIT_2_13_B74v2:
+      this->data(full_update ? 0xF7 : 0xFF);
+      break;
     case TTGO_EPAPER_2_13_IN_B73:
       this->data(0xC7);
       break;
@@ -698,6 +712,7 @@ int WaveshareEPaperTypeA::get_width_internal() {
     case TTGO_EPAPER_2_13_IN:
     case TTGO_EPAPER_2_13_IN_B73:
     case TTGO_EPAPER_2_13_IN_B74:
+    case ADAFRUIT_2_13_B74v2:
     case TTGO_EPAPER_2_13_IN_B1:
       return 122;
     case WAVESHARE_EPAPER_2_9_IN:
@@ -714,6 +729,7 @@ int WaveshareEPaperTypeA::get_width_controller() {
     case TTGO_EPAPER_2_13_IN:
     case TTGO_EPAPER_2_13_IN_B73:
     case TTGO_EPAPER_2_13_IN_B74:
+    case ADAFRUIT_2_13_B74v2:
     case TTGO_EPAPER_2_13_IN_B1:
       return 128;
     default:
@@ -730,6 +746,7 @@ int WaveshareEPaperTypeA::get_height_internal() {
     case TTGO_EPAPER_2_13_IN:
     case TTGO_EPAPER_2_13_IN_B73:
     case TTGO_EPAPER_2_13_IN_B74:
+    case ADAFRUIT_2_13_B74v2:
     case TTGO_EPAPER_2_13_IN_B1:
       return 250;
     case WAVESHARE_EPAPER_2_9_IN:

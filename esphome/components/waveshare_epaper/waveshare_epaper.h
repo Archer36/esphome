@@ -114,6 +114,7 @@ enum WaveshareEPaperTypeAModel {
   TTGO_EPAPER_2_13_IN_B73,
   TTGO_EPAPER_2_13_IN_B1,
   TTGO_EPAPER_2_13_IN_B74,
+  ADAFRUIT_2_13_B74v2,
 };
 
 class WaveshareEPaperTypeA : public WaveshareEPaper {
