@@ -7,7 +7,7 @@ namespace ds3502 {
 static const char *const TAG = "ds3502";
 
 void DS3502Component::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up DS3502 Potentiometer with initial value of %f", this->initial_value_);
+  ESP_LOGCONFIG(TAG, "Setting up DS3502 Potentiometer with initial value of %d", this->initial_value_);
 }
 
 void DS3502Component::dump_config() {
