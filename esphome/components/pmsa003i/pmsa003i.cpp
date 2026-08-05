@@ -17,9 +17,12 @@ static const uint8_t START_CHARACTER_1 = 0x42;
 static const uint8_t START_CHARACTER_2 = 0x4D;
 static const uint8_t READ_DATA_RETRY_COUNT = 10;
 static const uint16_t READ_DATA_RETRY_DELAY_MS = 100;
+static const uint16_t INITIAL_SETUP_DELAY_MS = 3000;
 
 void PMSA003IComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up pmsa003i...");
+  ESP_LOGCONFIG(TAG, "Waiting %u ms for sensor boot.", INITIAL_SETUP_DELAY_MS);
+  delay(INITIAL_SETUP_DELAY_MS);
 
   PM25AQIData data;
   bool successful_read = this->read_data_(&data);
