@@ -15,14 +15,21 @@ static const uint8_t CHECKSUM_START_INDEX = COUNT_DATA_BYTES - 2;
 static const uint8_t COUNT_16_BIT_VALUES = (COUNT_PAYLOAD_LENGTH_BYTES + COUNT_PAYLOAD_BYTES) / 2;
 static const uint8_t START_CHARACTER_1 = 0x42;
 static const uint8_t START_CHARACTER_2 = 0x4D;
-static const uint8_t READ_DATA_RETRY_COUNT = 3;
+static const uint8_t READ_DATA_RETRY_COUNT = 10;
+static const uint16_t READ_DATA_RETRY_DELAY_MS = 100;
 
 void PMSA003IComponent::setup() {
+  ESP_LOGCONFIG(TAG, "Setting up pmsa003i...");
+
   PM25AQIData data;
   bool successful_read = this->read_data_(&data);
+  uint8_t attempt = 0;
 
   if (!successful_read) {
     for (uint8_t i = 0; i < READ_DATA_RETRY_COUNT; i++) {
+      attempt = i + 1;
+      ESP_LOGW(TAG, "Setup read failed on attempt %u. Retrying after %u ms.", attempt, READ_DATA_RETRY_DELAY_MS);
+      delay(READ_DATA_RETRY_DELAY_MS);
       successful_read = this->read_data_(&data);
       if (successful_read) {
         break;
@@ -33,6 +40,12 @@ void PMSA003IComponent::setup() {
   if (!successful_read) {
     this->mark_failed();
     return;
+  }
+
+  if (attempt == 0) {
+    ESP_LOGCONFIG(TAG, "Initial setup read succeeded.");
+  } else {
+    ESP_LOGCONFIG(TAG, "Setup read succeeded after %u retry attempt(s).", attempt);
   }
 }
 
