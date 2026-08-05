@@ -49,6 +49,7 @@ class PMSA003IComponent final : public PollingComponent, public i2c::I2CDevice {
   bool read_data_(PM25AQIData *data);
 
   bool standard_units_;
+  uint8_t initial_updates_to_skip_{1};
 
   sensor::Sensor *pm_1_0_sensor_{nullptr};
   sensor::Sensor *pm_2_5_sensor_{nullptr};

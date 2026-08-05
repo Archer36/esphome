@@ -65,6 +65,13 @@ void PMSA003IComponent::update() {
   // Update sensors
   if (successful_read) {
     this->status_clear_warning();
+
+    if (this->initial_updates_to_skip_ > 0) {
+      this->initial_updates_to_skip_--;
+      ESP_LOGW(TAG, "Skipping initial warm-up read; %u warm-up update(s) left.", this->initial_updates_to_skip_);
+      return;
+    }
+
     ESP_LOGV(TAG, "Read success. Updating sensors.");
 
     if (this->standard_units_) {
