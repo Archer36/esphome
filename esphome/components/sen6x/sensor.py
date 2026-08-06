@@ -2,7 +2,6 @@ from esphome import automation
 from esphome.automation import maybe_simple_id
 import esphome.codegen as cg
 from esphome.components import i2c, sensirion_common, sensor
-from esphome.components.const import CONF_NOX_INDEX, CONF_VOC_INDEX
 import esphome.config_validation as cv
 from esphome.core import ID
 from esphome.const import (
@@ -11,6 +10,7 @@ from esphome.const import (
     CONF_HUMIDITY,
     CONF_ID,
     CONF_NOX,
+    CONF_NOX_INDEX,
     CONF_PM_1_0,
     CONF_PM_2_5,
     CONF_PM_4_0,
@@ -18,6 +18,7 @@ from esphome.const import (
     CONF_TEMPERATURE,
     CONF_TYPE,
     CONF_VOC,
+    CONF_VOC_INDEX,
     DEVICE_CLASS_CARBON_DIOXIDE,
     DEVICE_CLASS_HUMIDITY,
     DEVICE_CLASS_PM1,
