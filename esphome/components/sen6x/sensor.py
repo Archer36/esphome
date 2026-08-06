@@ -1,7 +1,10 @@
+from esphome import automation
+from esphome.automation import maybe_simple_id
 import esphome.codegen as cg
 from esphome.components import i2c, sensirion_common, sensor
 from esphome.components.const import CONF_NOX_INDEX, CONF_VOC_INDEX
 import esphome.config_validation as cv
+from esphome.core import ID
 from esphome.const import (
     CONF_CO2,
     CONF_FORMALDEHYDE,
@@ -32,6 +35,7 @@ from esphome.const import (
     UNIT_PARTS_PER_MILLION,
     UNIT_PERCENT,
 )
+from esphome.types import ConfigType, TemplateArgsType
 
 CODEOWNERS = ["@martgras", "@mebner86", "@tuct"]
 DEPENDENCIES = ["i2c"]
@@ -40,6 +44,13 @@ AUTO_LOAD = ["sensirion_common"]
 sen6x_ns = cg.esphome_ns.namespace("sen6x")
 SEN6XComponent = sen6x_ns.class_(
     "SEN6XComponent", cg.PollingComponent, sensirion_common.SensirionI2CDevice
+)
+StartFanAction = sen6x_ns.class_("StartFanAction", automation.Action)
+
+SEN6X_ACTION_SCHEMA = maybe_simple_id(
+    {
+        cv.Required(CONF_ID): cv.use_id(SEN6XComponent),
+    }
 )
 
 
@@ -136,7 +147,7 @@ SENSOR_MAP = {
 }
 
 
-async def to_code(config):
+async def to_code(config: ConfigType) -> None:
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
     await i2c.register_i2c_device(var, config)
@@ -148,3 +159,19 @@ async def to_code(config):
         if cfg := config.get(key):
             sens = await sensor.new_sensor(cfg)
             cg.add(getattr(var, func_name)(sens))
+
+
+@automation.register_action(
+    "sen6x.start_fan_autoclean",
+    StartFanAction,
+    SEN6X_ACTION_SCHEMA,
+    synchronous=True,
+)
+async def sen6x_start_fan_to_code(
+    config: ConfigType,
+    action_id: ID,
+    template_arg: cg.TemplateArguments,
+    args: TemplateArgsType,
+) -> cg.MockObj:
+    parent = await cg.get_variable(config[CONF_ID])
+    return cg.new_Pvariable(action_id, template_arg, parent)

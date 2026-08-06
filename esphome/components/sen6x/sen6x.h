@@ -23,6 +23,7 @@ class SEN6XComponent final : public PollingComponent, public sensirion_common::S
   void setup() override;
   void dump_config() override;
   void update() override;
+  bool start_fan_cleaning();
 
   enum Sen6xType { SEN62, SEN63C, SEN65, SEN66, SEN68, SEN69C, UNKNOWN };
 
@@ -30,6 +31,9 @@ class SEN6XComponent final : public PollingComponent, public sensirion_common::S
 
  protected:
   Sen6xType infer_type_from_product_name_(const std::string &product_name);
+  bool start_measurements_();
+  bool stop_measurements_();
+  void finish_fan_cleaning_();
   void poll_data_ready_();
   void read_measurements_();
   void parse_and_publish_measurements_();
@@ -44,6 +48,7 @@ class SEN6XComponent final : public PollingComponent, public sensirion_common::S
   uint8_t poll_retries_remaining_{0};
   uint8_t read_words_{0};
   bool startup_complete_{false};
+  bool fan_cleaning_{false};
 };
 
 }  // namespace esphome::sen6x

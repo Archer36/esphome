@@ -12,6 +12,7 @@ static constexpr uint32_t I2C_READ_DELAY = 20;  // 20 ms to wait for I2C read to
 static constexpr uint32_t POLL_INTERVAL = 50;   // 50 ms between poll attempts
 // Single numeric timeout ID — the chain is sequential so only one is active at a time.
 static constexpr uint32_t TIMEOUT_POLL = 1;
+static constexpr uint32_t TIMEOUT_FAN_CLEANING = 2;
 static constexpr uint16_t SEN6X_CMD_GET_DATA_READY_STATUS = 0x0202;
 static constexpr uint16_t SEN6X_CMD_GET_FIRMWARE_VERSION = 0xD100;
 static constexpr uint16_t SEN6X_CMD_GET_PRODUCT_NAME = 0xD014;
@@ -25,7 +26,9 @@ static constexpr uint16_t SEN6X_CMD_READ_MEASUREMENT_SEN68 = 0x0467;
 static constexpr uint16_t SEN6X_CMD_READ_MEASUREMENT_SEN69C = 0x04B5;
 
 static constexpr uint16_t SEN6X_CMD_START_MEASUREMENTS = 0x0021;
+static constexpr uint16_t SEN6X_CMD_STOP_MEASUREMENTS = 0x0104;
 static constexpr uint16_t SEN6X_CMD_RESET = 0xD304;
+static constexpr uint16_t SEN6X_CMD_START_FAN_CLEANING = 0x5607;
 
 static inline void set_read_command_and_words(SEN6XComponent::Sen6xType type, uint16_t &read_cmd, uint8_t &read_words) {
   read_cmd = SEN6X_CMD_READ_MEASUREMENT;
@@ -181,7 +184,7 @@ void SEN6XComponent::dump_config() {
 }
 
 void SEN6XComponent::update() {
-  if (!this->initialized_) {
+  if (!this->initialized_ || this->fan_cleaning_) {
     return;
   }
 
@@ -205,6 +208,38 @@ void SEN6XComponent::update() {
   //
   // All timeouts share a single ID (TIMEOUT_POLL) since only one is active
   // at a time. cancel_timeout in update() stops any in-flight chain.
+  this->poll_retries_remaining_ = POLL_RETRIES;
+  this->poll_data_ready_();
+}
+
+bool SEN6XComponent::stop_measurements_() {
+  if (!this->write_command(SEN6X_CMD_STOP_MEASUREMENTS)) {
+    ESP_LOGE(TAG, "Stop measurement failed (%d)", this->last_error_);
+    return false;
+  }
+
+  ESP_LOGD(TAG, "Measurement stopped");
+  return true;
+}
+
+bool SEN6XComponent::start_measurements_() {
+  if (!this->write_command(SEN6X_CMD_START_MEASUREMENTS)) {
+    ESP_LOGE(TAG, "Start measurement failed (%d)", this->last_error_);
+    return false;
+  }
+
+  ESP_LOGD(TAG, "Measurement started");
+  return true;
+}
+
+void SEN6XComponent::finish_fan_cleaning_() {
+  if (!this->start_measurements_()) {
+    this->fan_cleaning_ = false;
+    this->status_set_warning();
+    return;
+  }
+
+  this->fan_cleaning_ = false;
   this->poll_retries_remaining_ = POLL_RETRIES;
   this->poll_data_ready_();
 }
@@ -397,6 +432,39 @@ SEN6XComponent::Sen6xType SEN6XComponent::infer_type_from_product_name_(const st
   if (product_name == "SEN69C")
     return SEN69C;
   return UNKNOWN;
+}
+
+bool SEN6XComponent::start_fan_cleaning() {
+  if (!this->initialized_) {
+    ESP_LOGW(TAG, "Fan cleaning requested before initialization");
+    return false;
+  }
+  if (this->fan_cleaning_) {
+    ESP_LOGW(TAG, "Fan cleaning already in progress");
+    return false;
+  }
+
+  this->cancel_timeout(TIMEOUT_POLL);
+
+  if (!this->stop_measurements_()) {
+    this->status_set_warning();
+    return false;
+  }
+
+  this->fan_cleaning_ = true;
+  this->set_timeout(TIMEOUT_FAN_CLEANING, 1400, [this]() {
+    if (!this->write_command(SEN6X_CMD_START_FAN_CLEANING)) {
+      this->fan_cleaning_ = false;
+      this->status_set_warning();
+      ESP_LOGE(TAG, "Start fan cleaning failed (%d)", this->last_error_);
+      return;
+    }
+
+    ESP_LOGD(TAG, "Fan cleaning started");
+    this->set_timeout(TIMEOUT_FAN_CLEANING, 10000, [this]() { this->finish_fan_cleaning_(); });
+  });
+
+  return true;
 }
 
 }  // namespace esphome::sen6x

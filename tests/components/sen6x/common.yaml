@@ -1,3 +1,9 @@
+esphome:
+  on_boot:
+    then:
+      - sen6x.start_fan_autoclean:
+          id: sen6x_sensor
+
 sensor:
   # Test with explicit type parameter
   - platform: sen6x
