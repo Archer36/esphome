@@ -10,6 +10,7 @@ from esphome.const import (
     CONF_HUMIDITY,
     CONF_ID,
     CONF_NOX,
+    CONF_NOX_INDEX,
     CONF_PM_1_0,
     CONF_PM_2_5,
     CONF_PM_4_0,
@@ -17,6 +18,7 @@ from esphome.const import (
     CONF_TEMPERATURE,
     CONF_TYPE,
     CONF_VOC,
+    CONF_VOC_INDEX,
     DEVICE_CLASS_CARBON_DIOXIDE,
     DEVICE_CLASS_HUMIDITY,
     DEVICE_CLASS_PM1,
@@ -40,9 +42,6 @@ CODEOWNERS = ["@martgras", "@mebner86", "@tuct"]
 DEPENDENCIES = ["i2c"]
 AUTO_LOAD = ["sensirion_common"]
 
-CONF_VOC_INDEX = "voc_index"
-CONF_NOX_INDEX = "nox_index"
-
 sen6x_ns = cg.esphome_ns.namespace("sen6x")
 SEN6XComponent = sen6x_ns.class_(
     "SEN6XComponent", cg.PollingComponent, sensirion_common.SensirionI2CDevice
@@ -57,8 +56,8 @@ SEN6X_ACTION_SCHEMA = maybe_simple_id(
 
 
 CONFIG_SCHEMA = cv.All(
-    cv.rename_key(CONF_VOC, CONF_VOC_INDEX, removed_in="2027.2.0", component="sen6x"),
-    cv.rename_key(CONF_NOX, CONF_NOX_INDEX, removed_in="2027.2.0", component="sen6x"),
+    cv.rename_key(CONF_VOC, CONF_VOC_INDEX),
+    cv.rename_key(CONF_NOX, CONF_NOX_INDEX),
     cv.Schema(
         {
             cv.GenerateID(): cv.declare_id(SEN6XComponent),
