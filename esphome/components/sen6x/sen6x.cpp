@@ -30,6 +30,7 @@ static constexpr uint16_t SEN6X_CMD_STOP_MEASUREMENTS = 0x0104;
 static constexpr uint16_t SEN6X_CMD_RESET = 0xD304;
 static constexpr uint16_t SEN6X_CMD_START_FAN_CLEANING = 0x5607;
 static constexpr uint32_t FAN_CLEANING_RECOVERY_DELAY = 15000;
+static constexpr uint32_t FAN_CLEANING_RESTART_DELAY = 2000;
 
 static inline void set_read_command_and_words(SEN6XComponent::Sen6xType type, uint16_t &read_cmd, uint8_t &read_words) {
   read_cmd = SEN6X_CMD_READ_MEASUREMENT;
@@ -240,9 +241,11 @@ void SEN6XComponent::finish_fan_cleaning_() {
     return;
   }
 
-  this->fan_cleaning_ = false;
-  this->poll_retries_remaining_ = POLL_RETRIES;
-  this->poll_data_ready_();
+  this->set_timeout(TIMEOUT_FAN_CLEANING, FAN_CLEANING_RESTART_DELAY, [this]() {
+    this->fan_cleaning_ = false;
+    this->poll_retries_remaining_ = POLL_RETRIES;
+    this->poll_data_ready_();
+  });
 }
 
 void SEN6XComponent::poll_data_ready_() {
