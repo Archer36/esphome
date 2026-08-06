@@ -10,7 +10,6 @@ from esphome.const import (
     CONF_HUMIDITY,
     CONF_ID,
     CONF_NOX,
-    CONF_NOX_INDEX,
     CONF_PM_1_0,
     CONF_PM_2_5,
     CONF_PM_4_0,
@@ -18,7 +17,6 @@ from esphome.const import (
     CONF_TEMPERATURE,
     CONF_TYPE,
     CONF_VOC,
-    CONF_VOC_INDEX,
     DEVICE_CLASS_CARBON_DIOXIDE,
     DEVICE_CLASS_HUMIDITY,
     DEVICE_CLASS_PM1,
@@ -41,6 +39,9 @@ from esphome.types import ConfigType, TemplateArgsType
 CODEOWNERS = ["@martgras", "@mebner86", "@tuct"]
 DEPENDENCIES = ["i2c"]
 AUTO_LOAD = ["sensirion_common"]
+
+CONF_VOC_INDEX = "voc_index"
+CONF_NOX_INDEX = "nox_index"
 
 sen6x_ns = cg.esphome_ns.namespace("sen6x")
 SEN6XComponent = sen6x_ns.class_(
